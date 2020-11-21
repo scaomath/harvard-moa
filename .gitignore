@@ -2,3 +2,5 @@
 *.csv
 
 data/
+FOLD0_.pth
+FOLD1_.pth

@@ -351,4 +351,30 @@ for fold_nb, (train_idx, val_idx) in enumerate(mskf.split(train_df, targets)):
 oof_preds_all = np.concatenate(oof_preds)
 oof_targets_all = np.concatenate(oof_targets)
 test_preds_all = np.stack(test_cv_preds)
+# %% AUC
+aucs = []
+for task_id in range(oof_preds_all.shape[1]):
+    aucs.append(roc_auc_score(y_true = oof_targets_all[:, task_id],
+                              y_score = oof_preds_all[:, task_id]
+                             ))
+print(f"{b_}Overall AUC: {r_}{np.mean(aucs)}")
+print(f"{b_}Average CV: {r_}{np.mean(scores)}")
+
+#%%
+all_feat = [col for col in submission.columns if col not in ["sig_id"]]
+# To obtain the same lenght of test_preds_all and submission
+test = pd.read_csv(data_path + "test_features.csv")
+sig_id = test[test["cp_type"] != "ctl_vehicle"].sig_id.reset_index(drop = True)
+tmp = pd.DataFrame(test_preds_all.mean(axis = 0), columns = all_feat)
+tmp["sig_id"] = sig_id
+
+submission = pd.merge(test[["sig_id"]], tmp, on = "sig_id", how = "left")
+submission.fillna(0, inplace = True)
+
+#submission[all_feat] = tmp.mean(axis = 0)
+
+# Set control to 0
+#submission.loc[test["cp_type"] == 0, submission.columns[1:]] = 0
+submission.to_csv("submission.csv", index = None)
+submission.head()
 # %%

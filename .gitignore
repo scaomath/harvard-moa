@@ -6,3 +6,4 @@ FOLD0_.pth
 FOLD1_.pth
 data_all.pickle
 rankGaussTrafo.py
+model_resnet_fold0.ckpt
